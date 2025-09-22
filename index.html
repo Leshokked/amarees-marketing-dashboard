@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amarees Marketing Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50; --secondary: #3498db; --success: #2ecc71; 
+            --warning: #f39c12; --danger: #e74c3c; --light: #ecf0f1; 
+            --dark: #34495e; --email: #9b59b6; --social: #1abc9c; 
+            --pinterest: #e60023; --content: #f39c12;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body { background-color: #f5f7fa; color: #333; line-height: 1.6; }
+        
+        .dashboard-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        
+        .dashboard-header { 
+            background: linear-gradient(135deg, var(--primary), var(--dark)); 
+            color: white; padding: 25px; border-radius: 10px; 
+            margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        
+        h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        
+        .subtitle { font-size: 1.2rem; opacity: 0.9; }
+        
+        .kpi-badges { display: flex; gap: 15px; margin-top: 10px; }
+        
+        .kpi-badge { background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; font-size: 0.9rem; }
+        
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        
+        .nav-tab { 
+            padding: 12px 20px; background: white; border: none; border-radius: 5px; 
+            cursor: pointer; font-weight: 600; transition: all 0.3s ease; 
+            display: flex; align-items: center; gap: 8px;
+        }
+        
+        .nav-tab.active { background: var(--secondary); color: white; }
+        
+        .nav-tab:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+        
+        .card { 
+            background: white; border-radius: 10px; padding: 20px; 
+            margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card h3 { 
+            margin-bottom: 15px; padding-bottom: 10px; 
+            border-bottom: 2px solid var(--light); color: var(--primary);
+        }
+        
+        .progress-container { margin-bottom: 20px; }
+        
+        .progress-bar { 
+            height: 10px; background-color: var(--light); border-radius: 5px; 
+            overflow: hidden; margin-bottom: 5px;
+        }
+        
+        .progress-fill { height: 100%; border-radius: 5px; transition: width 0.3s; }
+        
+        .progress-text { 
+            display: flex; justify-content: space-between; 
+            font-size: 0.9rem; color: var(--dark);
+        }
+        
+        .timeline { margin: 20px 0; max-height: 600px; overflow-y: auto; }
+        
+        .timeline-item { 
+            display: flex; margin-bottom: 15px; padding: 15px; 
+            background: #f8f9fa; border-radius: 5px; border-left: 4px solid var(--email);
+        }
+        
+        .timeline-date { min-width: 150px; font-weight: 600; color: var(--dark); }
+        
+        .timeline-content { flex: 1; }
+        
+        .timeline-content h4 { margin-bottom: 5px; color: var(--primary); }
+        
+        .email-blast { margin-bottom: 15px; padding: 10px; background: white; border-radius: 4px; }
+        
+        .email-blast h5 { margin-bottom: 5px; color: var(--email); }
+        
+        .timeline-actions { display: flex; gap: 10px; margin-top: 10px; }
+        
+        .action-btn { 
+            background: none; border: 1px solid #ddd; border-radius: 3px; 
+            padding: 5px 10px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
+        }
+        
+        .action-btn:hover { background: #eee; }
+        
+        .pinterest-item { border-left-color: var(--pinterest); }
+        .social-item { border-left-color: var(--social); }
+        .content-item { border-left-color: var(--content); }
+        
+        .strategy-notes { 
+            background: #fff9e6; border-left: 4px solid var(--warning); 
+            padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0;
+        }
+        
+        .strategy-notes h4 { margin-bottom: 10px; }
+        
+        .strategy-notes ul { margin-left: 20px; }
+        
+        .strategy-notes li { margin-bottom: 5px; }
+        
+        .editable { 
+            border: 1px dashed transparent; padding: 2px 4px; border-radius: 3px; 
+            transition: all 0.2s; min-height: 20px;
+        }
+        
+        .editable:hover { border-color: var(--secondary); background: #f0f7ff; }
+        
+        .editable:focus { outline: none; border-color: var(--secondary); background: #e8f4fc; }
+        
+        .quarter-filters { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        
+        .quarter-btn { 
+            padding: 8px 15px; background: #f0f0f0; border: none; border-radius: 4px; 
+            cursor: pointer; font-size: 0.9rem;
+        }
+        
+        .quarter-btn.active { background: var(--secondary); color: white; }
+        
+        @media (max-width: 768px) {
+            .header-content { flex-direction: column; text-align: center; }
+            .kpi-badges { justify-content: center; }
+            .timeline-item { flex-direction: column; }
+            .timeline-date { min-width: auto; margin-bottom: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div class="header-content">
+                <div>
+                    <h1 contenteditable="true" class="editable">Amarees Marketing Dashboard</h1>
+                    <p class="subtitle" contenteditable="true" class="editable">Strategic Marketing Schedule • October 2025 - February 2026</p>
+                </div>
+                <div class="kpi-badges">
+                    <div class="kpi-badge">Email Open: <span contenteditable="true" class="editable">42%</span></div>
+                    <div class="kpi-badge">Conversion: <span contenteditable="true" class="editable">3.2%</span></div>
+                    <div class="kpi-badge">ROI: <span contenteditable="true" class="editable">5.8x</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="timeline">
+                <i class="fas fa-calendar-alt"></i> Marketing Timeline
+            </button>
+            <button class="nav-tab" data-tab="pinterest">
+                <i class="fab fa-pinterest"></i> Pinterest Strategy
+            </button>
+            <button class="nav-tab" data-tab="social">
+                <i class="fas fa-share-alt"></i> Social Media
+            </button>
+            <button class="nav-tab" data-tab="content">
+                <i class="fas fa-edit"></i> Content Strategy
+            </button>
+        </div>
+
+        <!-- Timeline Section -->
+        <div id="timeline-section" class="content-section active">
+            <div class="card">
+                <h3>Email Marketing Schedule 
+                    <button class="action-btn" onclick="toggleEditMode()" style="float: right;">
+                        <i class="fas fa-edit"></i> Toggle Edit Mode
+                    </button>
+                </h3>
+                
+                <div class="progress-container">
+                    <div class="progress-text">
+                        <span>Campaign Progress</span>
+                        <span><span id="progress-percent">5</span>% Complete</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 5%; background-color: var(--email);"></div>
+                    </div>
+                </div>
+                
+                <div class="quarter-filters">
+                    <button class="quarter-btn active" data-quarter="all">All Weeks</button>
+                    <button class="quarter-btn" data-quarter="q4">Q4 2025 (Weeks 1-13)</button>
+                    <button class="quarter-btn" data-quarter="q1">Q1 2026 (Weeks 14-21)</button>
+                </div>
+                
+                <div class="timeline" id="marketing-timeline">
+                    <!-- Timeline items will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="strategy-notes">
+                <h4>Strategic Guidelines</h4>
+                <ul>
+                    <li contenteditable="true">Focus on proven bestsellers throughout the schedule</li>
+                    <li contenteditable="true">Maintain seasonal relevance with each campaign</li>
+                    <li contenteditable="true">Prioritize inventory management - promote high-stock items</li>
+                    <li contenteditable="true">Implement customer segmentation for targeted messaging</li>
+                    <li contenteditable="true">Leverage cross-selling opportunities between complementary items</li>
+                    <li contenteditable="true">Use urgency and scarcity messaging for key sales periods</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Pinterest Section -->
+        <div id="pinterest-section" class="content-section">
+            <div class="card">
+                <h3>Pinterest Marketing Strategy</h3>
+                
+                <div class="progress-container">
+                    <div class="progress-text">
+                        <span>Pinterest Setup Progress</span>
+                        <span><span id="pinterest-progress">20</span>% Complete</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 20%; background-color: var(--pinterest);"></div>
+                    </div>
+                </div>
+                
+                <div class="timeline">
+                    <div class="timeline-item pinterest-item">
+                        <div class="timeline-date" contenteditable="true">October 15, 2025</div>
+                        <div class="timeline-content">
+                            <h4 contenteditable="true">Create Pinterest Business Account</h4>
+                            <p contenteditable="true">Set up business profile, claim website, and optimize bio with luxury fashion keywords</p>
+                            <div class="timeline-actions">
+                                <button class="action-btn complete-btn">Mark Complete</button>
+                                <button class="action-btn delete-btn">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item pinterest-item">
+                        <div class="timeline-date" contenteditable="true">October 22, 2025</div>
+                        <div class="timeline-content">
+                            <h4 contenteditable="true">Create Brand Boards</h4>
+                            <p contenteditable="true">Set up boards for Collections, Styling Ideas, Behind the Scenes, Luxury Fabrics, Modest Fashion Inspiration</p>
+                            <div class="timeline-actions">
+                                <button class="action-btn complete-btn">Mark Complete</button>
+                                <button class="action-btn delete-btn">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item pinterest-item">
+                        <div class="timeline-date" contenteditable="true">November 1, 2025</div>
+                        <div class="timeline-content">
+                            <h4 contenteditable="true">Pin High-Quality Product Images</h4>
+                            <p contenteditable="true">Create rich pins with product data, compelling descriptions, and luxury keywords</p>
+                            <div class="timeline-actions">
+                                <button class="action-btn complete-btn">Mark Complete</button>
+                                <button class="action-btn delete-btn">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="action-btn" onclick="addNewItem('pinterest')" style="width: 100%; margin-top: 10px;">
+                        <i class="fas fa-plus"></i> Add New Pinterest Task
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Social Media Section -->
+        <div id="social-section" class="content-section">
+            <div class="card">
+                <h3>Social Media Content Calendar</h3>
+                
+                <div class="timeline">
+                    <div class="timeline-item social-item">
+                        <div class="timeline-date" contenteditable="true">Weekly</div>
+                        <div class="timeline-content">
+                            <h4 contenteditable="true">Instagram Posts (3x/week)</h4>
+                            <p contenteditable="true">Product features, styling tips, behind-the-scenes content, designer spotlights</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item social-item">
+                        <div class="timeline-date" contenteditable="true">Daily</div>
+                        <div class="timeline-content">
+                            <h4 contenteditable="true">Instagram Stories (5x/week)</h4>
+                            <p contenteditable="true">Quick updates, polls, Q&A sessions, product teasers, customer features</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item social-item">
+                        <div class="timeline-date" contenteditable="true">Bi-Weekly</div>
+                        <div class="timeline-content">
+                            <h4 contenteditable="true">Reels/TikTok Content</h4>
+                            <p contenteditable="true">Styling videos, fabric details, brand storytelling, luxury craftsmanship highlights</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Strategy Section -->
+        <div id="content-section" class="content-section">
+            <div class="card">
+                <h3>Content Marketing Strategy</h3>
+                
+                <div class="timeline">
+                    <div class="timeline-item content-item">
+                        <div class="timeline-date" contenteditable="true">Monthly</div>
+                        <div class="timeline-content">
+                            <h4 contenteditable="true">Blog Posts (2x/month)</h4>
+                            <p contenteditable="true">Styling guides, designer spotlights, fabric education, modest fashion trends</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item content-item">
+                        <div class="timeline-date" contenteditable="true">Quarterly</div>
+                        <div class="timeline-content">
+                            <h4 contenteditable="true">Lookbook Production</h4>
+                            <p contenteditable="true">Seasonal photoshoots showcasing new collections, professional styling</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item content-item">
+                        <div class="timeline-date" contenteditable="true">Ongoing</div>
+                        <div class="timeline-content">
+                            <h4 contenteditable="true">SEO Optimization</h4>
+                            <p contenteditable="true">Keyword research, meta descriptions, content updates, luxury fashion SEO</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Complete marketing schedule data
+        const marketingSchedule = [
+            {
+                week: 1, dateRange: "Sept 23-29", theme: "Foundation Setup",
+                emailBlasts: [
+                    {
+                        title: "Fall Favorites - Your Bestsellers Are Back",
+                        featured: "Dosa Pants with Lace ($8,754 in sales, 35 units sold)",
+                        highlight: "Customer favorites returning for fall"
+                    },
+                    {
+                        title: "Luxury Footwear Focus",
+                        featured: "Soft Loafer in Eel ($21,755 in sales, 26 units sold)",
+                        highlight: "Cross-sell with Dosa pieces"
+                    }
+                ]
+            },
+            {
+                week: 2, dateRange: "Sept 30-Oct 6", theme: "October Launch",
+                emailBlasts: [
+                    {
+                        title: "October Essentials - Dosa Collection",
+                        featured: "Dosa Wide Leg Pants + Dosa Pajama Pants",
+                        highlight: "Bundle promotion for multiple Dosa pieces"
+                    },
+                    {
+                        title: "The Row Spotlight",
+                        featured: "The Row Owen Runner ($9,910 in sales)",
+                        highlight: "Premium positioning for luxury customers"
+                    }
+                ]
+            },
+            {
+                week: 3, dateRange: "Oct 7-13", theme: "Mid-October Push",
+                emailBlasts: [
+                    {
+                        title: "Dress for the Season",
+                        featured: "Dosa Short Tule Dress ($10,936 in sales)",
+                        highlight: "Seasonal styling tips"
+                    },
+                    {
+                        title: "Accessories & Essentials",
+                        featured: "Niloufer Hand Towel + home goods",
+                        highlight: "Cross-sell with fashion items"
+                    }
+                ]
+            },
+            {
+                week: 4, dateRange: "Oct 14-20", theme: "Pre-Holiday",
+                emailBlasts: [
+                    {
+                        title: "Holiday Preview - Gift Guide Sneak Peek",
+                        featured: "Feature top sellers as gift options",
+                        highlight: "Early bird holiday messaging"
+                    },
+                    {
+                        title: "Surplice & Slip Collection",
+                        featured: "Surplice ($5,213 in sales) + Dosa Slip with Ruffles",
+                        highlight: "Elegant evening wear options"
+                    }
+                ]
+            },
+            {
+                week: 5, dateRange: "Oct 21-27", theme: "Halloween/Late October",
+                emailBlasts: [
+                    {
+                        title: "Last Call October Favorites",
+                        featured: "Inventory clearance for slower-moving items",
+                        highlight: "Create urgency"
+                    },
+                    {
+                        title: "November Preview",
+                        featured: "Tease upcoming collections",
+                        highlight: "Build anticipation"
+                    }
+                ]
+            },
+            {
+                week: 6, dateRange: "Oct 28-Nov 3", theme: "November Launch",
+                emailBlasts: [
+                    {
+                        title: "November New Arrivals",
+                        featured: "Fresh inventory focus",
+                        highlight: "Seasonal transition pieces"
+                    },
+                    {
+                        title: "Customer Favorites Return",
+                        featured: "Restock announcements for bestsellers",
+                        highlight: "Back by popular demand messaging"
+                    }
+                ]
+            },
+            {
+                week: 7, dateRange: "Nov 4-10", theme: "Pre-Holiday Ramp",
+                emailBlasts: [
+                    {
+                        title: "Holiday Gift Guide - Part 1",
+                        featured: "Luxury accessories focus",
+                        highlight: "Gift-giving messaging"
+                    },
+                    {
+                        title: "The Row Holiday Collection",
+                        featured: "Premium gift options",
+                        highlight: "Exclusive positioning"
+                    }
+                ]
+            },
+            {
+                week: 8, dateRange: "Nov 11-17", theme: "Mid-November",
+                emailBlasts: [
+                    {
+                        title: "Black Friday Preview",
+                        featured: "Early access for subscribers",
+                        highlight: "Build anticipation"
+                    },
+                    {
+                        title: "Dosa Holiday Essentials",
+                        featured: "Multiple Dosa bestsellers",
+                        highlight: "Holiday party dressing"
+                    }
+                ]
+            },
+            {
+                week: 9, dateRange: "Nov 18-24", theme: "Black Friday Week",
+                emailBlasts: [
+                    {
+                        title: "Black Friday Exclusive",
+                        featured: "Limited-time offers on top sellers",
+                        highlight: "Urgency messaging"
+                    },
+                    {
+                        title: "Cyber Monday Luxury Focus",
+                        featured: "Premium items spotlight",
+                        highlight: "Last chance messaging"
+                    }
+                ]
+            },
+            {
+                week: 10, dateRange: "Nov 25-Dec 1", theme: "Post-Black Friday",
+                emailBlasts: [
+                    {
+                        title: "Holiday Shopping Continues",
+                        featured: "Gift guide featuring bestsellers",
+                        highlight: "Shipping deadline reminders"
+                    },
+                    {
+                        title: "December Arrivals",
+                        featured: "New inventory for holiday season",
+                        highlight: "Fresh options messaging"
+                    }
+                ]
+            },
+            {
+                week: 11, dateRange: "Dec 2-8", theme: "Early December",
+                emailBlasts: [
+                    {
+                        title: "Holiday Party Ready",
+                        featured: "Dosa dresses and luxury pieces",
+                        highlight: "Styling for events"
+                    },
+                    {
+                        title: "Last-Minute Luxury Gifts",
+                        featured: "Quick shipping options",
+                        highlight: "Gift card promotions"
+                    }
+                ]
+            },
+            {
+                week: 12, dateRange: "Dec 9-15", theme: "Mid-December",
+                emailBlasts: [
+                    {
+                        title: "Final Week for Holiday Delivery",
+                        featured: "Shipping cutoff reminders",
+                        highlight: "Express shipping options"
+                    },
+                    {
+                        title: "New Year, New Style",
+                        featured: "Preview January collections",
+                        highlight: "Post-holiday positioning"
+                    }
+                ]
+            },
+            {
+                week: 13, dateRange: "Dec 16-22", theme: "Holiday Final Push",
+                emailBlasts: [
+                    {
+                        title: "Last Chance Holiday Gifts",
+                        featured: "Digital gift cards",
+                        highlight: "Immediate delivery options"
+                    },
+                    {
+                        title: "Thank You & Year-End",
+                        featured: "Customer appreciation",
+                        highlight: "Year in review"
+                    }
+                ]
+            },
+            {
+                week: 14, dateRange: "Dec 23-29", theme: "Post-Holiday",
+                emailBlasts: [
+                    {
+                        title: "Post-Holiday Self-Care",
+                        featured: "Treat yourself messaging",
+                        highlight: "Personal shopping focus"
+                    },
+                    {
+                        title: "January Preview",
+                        featured: "New year, new wardrobe",
+                        highlight: "Fresh start messaging"
+                    }
+                ]
+            },
+            {
+                week: 15, dateRange: "Dec 30-Jan 5", theme: "New Year",
+                emailBlasts: [
+                    {
+                        title: "New Year, New You",
+                        featured: "Resolution-focused messaging",
+                        highlight: "Wardrobe refresh"
+                    },
+                    {
+                        title: "January Essentials",
+                        featured: "Winter wardrobe staples",
+                        highlight: "Comfort and style focus"
+                    }
+                ]
+            },
+            {
+                week: 16, dateRange: "Jan 6-12", theme: "January Mid-Month",
+                emailBlasts: [
+                    {
+                        title: "Winter Favorites",
+                        featured: "Seasonal bestsellers",
+                        highlight: "Cozy luxury focus"
+                    },
+                    {
+                        title: "The Row Winter Collection",
+                        featured: "Premium winter pieces",
+                        highlight: "Investment dressing"
+                    }
+                ]
+            },
+            {
+                week: 17, dateRange: "Jan 13-19", theme: "Late January",
+                emailBlasts: [
+                    {
+                        title: "Customer Favorites Restock",
+                        featured: "Popular items back in stock",
+                        highlight: "You asked, we listened"
+                    },
+                    {
+                        title: "Pre-Spring Preview",
+                        featured: "Early spring arrivals",
+                        highlight: "Seasonal transition"
+                    }
+                ]
+            },
+            {
+                week: 18, dateRange: "Jan 20-26", theme: "End January",
+                emailBlasts: [
+                    {
+                        title: "January Final Week",
+                        featured: "Winter clearance",
+                        highlight: "Make room for spring"
+                    },
+                    {
+                        title: "February Preview",
+                        featured: "Spring collection teasers",
+                        highlight: "Fresh season messaging"
+                    }
+                ]
+            },
+            {
+                week: 19, dateRange: "Jan 27-Feb 2", theme: "February Launch",
+                emailBlasts: [
+                    {
+                        title: "February Fresh Arrivals",
+                        featured: "New spring inventory",
+                        highlight: "Seasonal refresh"
+                    },
+                    {
+                        title: "Valentine's Day Luxury",
+                        featured: "Gift-giving for Valentine's",
+                        highlight: "Self-love messaging"
+                    }
+                ]
+            },
+            {
+                week: 20, dateRange: "Feb 3-9", theme: "Early February",
+                emailBlasts: [
+                    {
+                        title: "Spring Transition Pieces",
+                        featured: "Versatile items for season change",
+                        highlight: "Layering focus"
+                    },
+                    {
+                        title: "Dosa Spring Preview",
+                        featured: "New Dosa arrivals",
+                        highlight: "Brand loyalty focus"
+                    }
+                ]
+            },
+            {
+                week: 21, dateRange: "Feb 10-16", theme: "Mid-February",
+                emailBlasts: [
+                    {
+                        title: "Valentine's Week Special",
+                        featured: "Last-minute Valentine's gifts",
+                        highlight: "Romantic styling"
+                    },
+                    {
+                        title: "Spring Forward",
+                        featured: "Full spring collection launch",
+                        highlight: "New season excitement"
+                    }
+                ]
+            }
+        ];
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTimeline();
+            setupEventListeners();
+            updateProgress();
+        });
+
+        function renderTimeline() {
+            const timelineContainer = document.getElementById('marketing-timeline');
+            timelineContainer.innerHTML = '';
+            
+            marketingSchedule.forEach(week => {
+                const weekElement = document.createElement('div');
+                weekElement.className = 'timeline-item';
+                weekElement.setAttribute('data-week', week.week);
+                weekElement.setAttribute('data-quarter', week.week <= 13 ? 'q4' : 'q1');
+                
+                weekElement.innerHTML = `
+                    <div class="timeline-date" contenteditable="true">${week.dateRange}</div>
+                    <div class="timeline-content">
+                        <h4 contenteditable="true">Week ${week.week}: ${week.theme}</h4>
+                        <div class="email-blasts">
+                            ${week.emailBlasts.map((blast, index) => `
+                                <div class="email-blast">
+                                    <h5 contenteditable="true">Email Blast ${index + 1}: ${blast.title}</h5>
+                                    <p><strong contenteditable="true">Feature:</strong> ${blast.featured}</p>
+                                    <p><em contenteditable="true">Highlight:</em> ${blast.highlight}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="timeline-actions">
+                            <button class="action-btn complete-btn">Mark Complete</button>
+                            <button class="action-btn delete-btn">Delete</button>
+                        </div>
+                    </div>
+                `;
+                
+                timelineContainer.appendChild(weekElement);
+            });
+        }
+
+        function setupEventListeners() {
+            // Tab navigation
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab') + '-section';
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Quarter filters
+            document.querySelectorAll('.quarter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.quarter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const quarter = this.getAttribute('data-quarter');
+                    filterTimeline(quarter);
+                });
+            });
+            
+            // Action buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('complete-btn')) {
+                    const item = e.target.closest('.timeline-item');
+                    item.style.opacity = '0.7';
+                    e.target.textContent = 'Completed';
+                    e.target.disabled = true;
+                    updateProgress();
+                }
+                
+                if (e.target.classList.contains('delete-btn')) {
+                    if (confirm('Are you sure you want to delete this item?')) {
+                        e.target.closest('.timeline-item').remove();
+                        updateProgress();
+                    }
+                }
+            });
+        }
+
+        function filterTimeline(quarter) {
+            const items = document.querySelectorAll('.timeline-item');
+            items.forEach(item => {
+                if (quarter === 'all' || item.getAttribute('data-quarter') === quarter) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function updateProgress() {
+            const totalItems = document.querySelectorAll('#marketing-timeline .timeline-item').length;
+            const completedItems = document.querySelectorAll('#marketing-timeline .complete-btn:disabled').length;
+            const progress = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
+            
+            document.getElementById('progress-percent').textContent = Math.round(progress);
+            document.querySelector('#timeline-section .progress-fill').style.width = `${progress}%`;
+            
+            // Update Pinterest progress
+            const pinterestItems = document.querySelectorAll('#pinterest-section .timeline-item').length;
+            const completedPinterest = document.querySelectorAll('#pinterest-section .complete-btn:disabled').length;
+            const pinterestProgress = pinterestItems > 0 ? (completedPinterest / pinterestItems) * 100 : 0;
+            
+            document.getElementById('pinterest-progress').textContent = Math.round(pinterestProgress);
+            document.querySelector('#pinterest-section .progress-fill').style.width = `${pinterestProgress}%`;
+        }
+
+        function toggleEditMode() {
+            const editables = document.querySelectorAll('.editable');
+            const isEditing = editables[0] && editables[0].getAttribute('contenteditable') === 'true';
+            
+            editables.forEach(el => {
+                if (isEditing) {
+                    el.setAttribute('contenteditable', 'false');
+                    el.style.borderColor = 'transparent';
+                    el.style.background = 'transparent';
+                } else {
+                    el.setAttribute('contenteditable', 'true');
+                    el.style.borderColor = '#3498db';
+                    el.style.background = '#f0f7ff';
+                }
+            });
+        }
+
+        function addNewItem(type) {
+            const section = document.getElementById(`${type}-section`);
+            const timeline = section.querySelector('.timeline');
+            
+            const newItem = document.createElement('div');
+            newItem.className = `timeline-item ${type}-item`;
+            newItem.innerHTML = `
+                <div class="timeline-date" contenteditable="true">New Date</div>
+                <div class="timeline-content">
+                    <h4 contenteditable="true">New ${type.charAt(0).toUpperCase() + type.slice(1)} Task</h4>
+                    <p contenteditable="true">Task description</p>
+                    <div class="timeline-actions">
+                        <button class="action-btn complete-btn">Mark Complete</button>
+                        <button class="action-btn delete-btn">Delete</button>
+                    </div>
+                </div>
+            `;
+            
+            timeline.insertBefore(newItem, timeline.lastElementChild);
+        }
+    </script>
+</body>
+</html>
